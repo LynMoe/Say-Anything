@@ -73,14 +73,14 @@ class comment {
         });
     }
 
-    createArticleSync(title, url) {
+    createArticleSync(title, url, articleId = null) {
         let articleData = {
             articleTitle: title,
             url: url,
             createTime: (new Date()).getTime(),
             comments: [],
         };
-        articleData.articleId = objectHash(articleData);
+        articleData.articleId = articleId || objectHash(articleData);
         let filename = this.genFilename(articleData.articleId);
 
         if (!fs.existsSync(path.dirname(filename))) {

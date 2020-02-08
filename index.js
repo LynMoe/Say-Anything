@@ -117,7 +117,7 @@ app.post('/createArticle', (req, res) => {
             status: 200,
             message: "Success",
             data: {
-                articleId: c.createArticleSync(title, url),
+                articleId: c.createArticleSync(title, url, body.articleId),
             },
         });
     } catch (e) {
