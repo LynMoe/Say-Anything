@@ -15,7 +15,7 @@ const returnError = (res, code, msg) => {
     });
 }
 
-// app.use(express.json());
+app.use(express.json());
 
 app.get('/getComment/:articleId/:page?/:pageSize?', (req, res) => {
     let articleId = req.params.articleId || null;
@@ -133,4 +133,8 @@ app.all('*', (req, res) => {
     returnError(res, -1, "Not found");
 });
 
-app.listen(4500, () => console.log(`App listening on port 4500!`))
+app.listen(4500, () => {
+    console.log(`Secret: ${config['sysSecret']}`);
+    console.log(`Email: ${config['authorEmail']}`);
+    console.log(`App listening on port 4500!`);
+})

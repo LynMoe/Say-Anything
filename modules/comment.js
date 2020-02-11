@@ -26,7 +26,11 @@ class comment {
 
     addArticleComment(articleId, author, email, url, content, cb, replyTo = null) {
         this.getArticleFile(articleId, (data, error) => {
-            if (error) cb(null, error);
+            if (error)
+            {
+                cb(null, error);
+                return;
+            }
             try {
                 let data = this.getArticleFileSync(articleId);
                 let comment = {
