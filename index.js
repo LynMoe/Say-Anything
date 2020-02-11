@@ -7,9 +7,9 @@ const objectHash = require('object-hash');
 const app = express();
 const c = new comment();
 
-const returnError = (res, status, msg) => {
-    res.status(status).json({
-        status: status,
+const returnError = (res, code, msg) => {
+    res.json({
+        code: code,
         message: msg,
         data: {},
     });
@@ -23,7 +23,7 @@ app.get('/getComment/:articleId/:page?/:pageSize?', (req, res) => {
     let page = req.params.page || 1;
     let pageSize = req.params.pageSize || 5;
     if (!validator.matches(articleId, /^[a-z\d]{40,40}$/g)) {
-        returnError(res, 400, "Param(s) error!");
+        returnError(res, -1, "Param(s) error!");
         return;
     }
 
@@ -35,12 +35,13 @@ app.get('/getComment/:articleId/:page?/:pageSize?', (req, res) => {
 
     c.getArticleComment(articleId, (data, error) => {
         if (error) {
-            returnError(res, 500, "Server error: " + error.toString())
+            if (error.toString() === 'Article Id not found') returnError(res, -1, error.toString());
+            else returnError(res, -2, "Server error: " + error.toString());
             return;
         }
 
         res.json({
-            status: 200,
+            code: 0,
             message: "Success",
             data: data,
         });
@@ -73,24 +74,24 @@ app.post('/addComment', (req, res) => {
             (content && content.length <= 500) &&
             (!validator.matches(replyTo, /^[a-z\d]{40,40}$/g) || replyTo === null)
         ) {
-            returnError(res, 400, "Param(s) error!");
+            returnError(res, -1, "Param(s) error!");
             return;
         }
 
         c.addArticleComment(articleId, author, email, url, content, (data, error) => {
             if (error) {
-                returnError(res, 500, "Server error: " + error.toString())
+                returnError(res, -2, "Server error: " + error.toString())
                 return;
             }
 
             res.json({
-                status: 200,
+                code: 0,
                 message: "Success",
                 data: {},
             });
         }, replyTo);
     } catch (e) {
-        returnError(res, 500, "Server error: " + e.toString());
+        returnError(res, -2, "Server error: " + e.toString());
     }
 });
 
@@ -98,7 +99,7 @@ app.post('/createArticle', (req, res) => {
     try {
         let sysSecret = config['sysSecret'] || null;
         if (!sysSecret) {
-            returnError(res, 500, "Secret havn't been set yet!");
+            returnError(res, 0, "Secret havn't been set yet!");
             return;
         }
 
@@ -112,24 +113,24 @@ app.post('/createArticle', (req, res) => {
         let url = body.url;
 
         if (sha1(secret) !== sysSecret) {
-            returnError(res, 403, "Secret error!");
+            returnError(res, -1, "Secret error!");
             return;
         }
 
         res.json({
-            status: 200,
+            code: 0,
             message: "Success",
             data: {
                 articleId: c.createArticleSync(title, url, (body.articleId) ? objectHash({id: body.articleId}) : null),
             },
         });
     } catch (e) {
-        returnError(res, 500, "Server error: " + e.toString());
+        returnError(res, -2, "Server error: " + e.toString());
     }
 });
 
 app.all('*', (req, res) => {
-    returnError(res, 404, "Not found");
+    returnError(res, -1, "Not found");
 });
 
-app.listen(4500, () => console.log(`Example app listening on port 4500!`))
+app.listen(4500, () => console.log(`App listening on port 4500!`))
