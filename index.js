@@ -3,6 +3,7 @@ const config = require(__dirname + '/modules/config');
 const validator = require('validator');
 const sha1 = require('js-sha1');
 const express = require('express');
+const objectHash = require('object-hash');
 const app = express();
 const c = new comment();
 
@@ -18,6 +19,7 @@ const returnError = (res, status, msg) => {
 
 app.get('/getComment/:articleId/:page?/:pageSize?', (req, res) => {
     let articleId = req.params.articleId || null;
+    articleId = (articleId) ? objectHash({id: articleId}) : null;
     let page = req.params.page || 1;
     let pageSize = req.params.pageSize || 5;
     if (!validator.matches(articleId, /^[a-z\d]{40,40}$/g)) {
@@ -52,6 +54,7 @@ app.post('/addComment', (req, res) => {
             throw new Error('Body not valid');
         }
         let articleId = body.articleId || null;
+        articleId = (articleId) ? objectHash({id: articleId}) : null;
         let author = body.author;
         let email = body.email;
         let url = body.url || '';
@@ -104,11 +107,11 @@ app.post('/createArticle', (req, res) => {
         if (!body) {
             throw new Error('Body not valid');
         }
-        let secret = body.secret;
+        let secret = body.secret || 0;
         let title = body.title;
         let url = body.url;
 
-        if (secret !== sysSecret) {
+        if (sha1(secret) !== sysSecret) {
             returnError(res, 403, "Secret error!");
             return;
         }
@@ -117,7 +120,7 @@ app.post('/createArticle', (req, res) => {
             status: 200,
             message: "Success",
             data: {
-                articleId: c.createArticleSync(title, url, body.articleId),
+                articleId: c.createArticleSync(title, url, (body.articleId) ? objectHash({id: body.articleId}) : null),
             },
         });
     } catch (e) {
