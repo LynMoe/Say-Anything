@@ -87,7 +87,9 @@ app.post('/addComment', (req, res) => {
             res.json({
                 code: 0,
                 message: "Success",
-                data: {},
+                data: {
+                    commentId: data,
+                },
             });
         }, replyTo);
     } catch (e) {

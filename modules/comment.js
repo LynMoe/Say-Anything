@@ -70,7 +70,7 @@ class comment {
                 }
 
                 fs.writeFileSync(this.genFilename(articleId), JSON.stringify(data));
-                cb('Success');
+                cb(comment.commentId);
             } catch (e) {
                 cb(null, e.toString());
             }
