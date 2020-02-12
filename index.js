@@ -70,8 +70,8 @@ app.post('/addComment', (req, res) => {
             !validator.matches(articleId, /^[a-z\d]{40,40}$/g) &&
             !validator.matches(author, /^[\u4e00-\u9fa5a-zA-Z\w\d\ ]+$/g) &&
             !validator.isEmail(email) &&
-            (!validator.isURL(url) || url === '') &&
-            (content && content.length <= 500) &&
+            (!validator.isURL(url) || url !== '') &&
+            (content && content.length > 1 && content.length <= 500) &&
             (!validator.matches(replyTo, /^[a-z\d]{40,40}$/g) || replyTo === null)
         ) {
             returnError(res, -1, "Param(s) error!");
