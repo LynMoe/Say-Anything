@@ -54,13 +54,13 @@ app.post('/addComment', (req, res) => {
         if (!body) {
             throw new Error('Body not valid');
         }
-        let articleId = body.articleId || null;
-        articleId = (articleId) ? objectHash({id: articleId}) : null;
+        let articleId = body.articleId || '';
+        articleId = (articleId) ? objectHash({id: articleId}) : '';
         let author = body.author;
         let email = body.email;
         let url = body.url || '';
         let content = body.content;
-        let replyTo = body.replyTo || null;
+        let replyTo = body.replyTo || '';
 
         email = validator.normalizeEmail(email);
         content = validator.trim(content);
