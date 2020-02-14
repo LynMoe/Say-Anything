@@ -48,11 +48,10 @@ class comment {
                     let search = (arr) => {
                         for (let i in arr) {
                             let k = arr[i];
-                            console.log(k);
                             if (k.commentId === replyTo) return k;
                             if (k.childs.length) {
                                 let result = search(k.childs);
-                                if (_.isObject(result)) return result
+                                if (_.isObject(result)) return result;
                             } else {
                                 continue;
                             }
