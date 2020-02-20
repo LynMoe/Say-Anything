@@ -71,7 +71,7 @@ class comment {
                 fs.writeFileSync(this.genFilename(articleId), JSON.stringify(data));
                 cb(comment.commentId);
 
-                if (originComment) this.replyHook({
+                if (CONFIG.replyNotification === 'true' && originComment) this.replyHook({
                     title: data.articleTitle,
                     time: (new Date).getTime(),
                     email: email,
