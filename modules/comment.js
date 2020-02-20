@@ -160,7 +160,7 @@ class comment {
                 time: `${date.getFullYear()}-${date.getMonth()}-${date.getDay()} ${date.getHours()}:${date.getMinutes()}`,
                 originComment: data.originComment,
                 reply: data.content,
-                year: date.getFullYear,
+                year: date.getFullYear(),
                 author: data.author,
             },
         };
