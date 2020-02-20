@@ -13,8 +13,7 @@ let queue = PromiseQueue(1, {
 class comment {
     getArticleComment(articleId, cb, page = null, pageSize = null) {
         this.getArticleFile(articleId, (data, error) => {
-            if (error)
-            {
+            if (error) {
                 cb(null, error);
                 return;
             }
@@ -26,11 +25,11 @@ class comment {
 
     addArticleComment(articleId, author, email, url, content, cb, replyTo = null) {
         this.getArticleFile(articleId, (data, error) => {
-            if (error)
-            {
+            if (error) {
                 cb(null, error);
                 return;
             }
+            let originComment = '';
             try {
                 let data = this.getArticleFileSync(articleId);
                 let comment = {
@@ -64,12 +63,22 @@ class comment {
                         return;
                     }
                     target.childs.unshift(comment);
+                    originComment = target.content;
                 } else {
                     data.comments.unshift(comment);
                 }
 
                 fs.writeFileSync(this.genFilename(articleId), JSON.stringify(data));
                 cb(comment.commentId);
+
+                if (originComment) this.replyHook({
+                    title: data.articleTitle,
+                    time: (new Date).getTime(),
+                    email: email,
+                    author: author,
+                    content: content,
+                    originComment: originComment,
+                }).then(_ => console.log(_));
             } catch (e) {
                 cb(null, e.toString());
             }
@@ -130,6 +139,33 @@ class comment {
 
     genFilename(hash) {
         return __root + hash.substr(0, 2) + '/' + hash.substr(-2, 2) + '/' + hash + '.json';
+    }
+
+    replyHook(data) {
+        const sgMail = require('@sendgrid/mail');
+        sgMail.setApiKey(CONFIG.sgApiKey);
+        sgMail.setSubstitutionWrappers('{{', '}}');
+        let date = new Date(data.time);
+
+        const msg = {
+            to: data.email,
+            from: {
+                name: CONFIG.sgFromName,
+                email: CONFIG.sgFromEmail,
+            },
+            subject: CONFIG.sgSubjet,
+            templateId: CONFIG.sgTemplateId,
+            dynamic_template_data: {
+                title: data.title,
+                time: `${date.getFullYear()}-${date.getMonth()}-${date.getDay()} ${date.getHours()}:${date.getMinutes()}`,
+                originComment: data.originComment,
+                reply: data.content,
+                year: date.getFullYear,
+                author: data.author,
+            },
+        };
+
+        return sgMail.send(msg);
     }
 }
 
