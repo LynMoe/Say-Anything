@@ -79,6 +79,7 @@ class comment {
                     author: author,
                     content: content,
                     originComment: originComment,
+                    link: data.url + '#comment-' + comment.commentId,
                 }).then(_ => console.log(_));
             } catch (e) {
                 cb(null, e.toString());
@@ -163,6 +164,7 @@ class comment {
                 reply: data.content,
                 year: date.getFullYear(),
                 author: data.author,
+                link: data.link,
             },
         };
 
