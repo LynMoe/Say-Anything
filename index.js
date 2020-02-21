@@ -1,4 +1,6 @@
 const comment = require(__dirname + '/modules/comment');
+const fetch = require('node-fetch');
+const formData = require('form-data');
 const config = require(__dirname + '/modules/config');
 const validator = require('validator');
 const sha1 = require('js-sha1');
@@ -23,8 +25,7 @@ app.get('/getComment/:articleId/:page?/:pageSize?', (req, res) => {
     let page = req.params.page || 1;
     let pageSize = req.params.pageSize || 5;
     if (!validator.matches(articleId, /^[a-z\d]{40,40}$/g)) {
-        returnError(res, -1, "Param(s) error!");
-        return;
+        return returnError(res, -1, "Param(s) error!");
     }
 
     page = parseInt(page);
@@ -48,12 +49,27 @@ app.get('/getComment/:articleId/:page?/:pageSize?', (req, res) => {
     }, page, pageSize);
 });
 
-app.post('/addComment', (req, res) => {
+app.post('/addComment', async (req, res) => {
     try {
         let body = req.body;
         if (!body) {
             throw new Error('Body not valid');
         }
+
+        if (config.enableRecaptcha === 'true')
+        {
+            let token = body.token || 'none';
+            let data = new formData();
+            data.append('secret', config.recaptchaSecret);
+            data.append('response', token);
+            let result = await fetch('https://recaptcha.net/recaptcha/api/siteverify', {
+                method: 'post',
+                body: data,
+            }).then(res => res.json());
+
+            if (result.success !== true) return returnError(res, -1, "Token not vaild.");
+        }
+
         let articleId = body.articleId || '';
         articleId = (articleId) ? objectHash({id: articleId}) : '';
         let author = body.author;
