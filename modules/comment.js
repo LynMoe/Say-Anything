@@ -29,7 +29,7 @@ class comment {
                 cb(null, error);
                 return;
             }
-            let originComment = '';
+            let originComment = null;
             try {
                 let data = this.getArticleFileSync(articleId);
                 let comment = {
@@ -64,6 +64,7 @@ class comment {
                     }
                     target.childs.unshift(comment);
                     originComment = target.content;
+                    email = target.email;
                 } else {
                     data.comments.unshift(comment);
                 }
@@ -71,7 +72,6 @@ class comment {
                 fs.writeFileSync(this.genFilename(articleId), JSON.stringify(data));
                 cb(comment.commentId);
 
-                if (originComment.length === 0) email = CONFIG.authorEmail;
                 if (CONFIG.replyNotification === 'true') this.replyHook({
                     title: data.articleTitle,
                     time: (new Date).getTime(),
