@@ -21,7 +21,9 @@ app.use(express.json());
 
 app.get('/getComment/:articleId/:page?/:pageSize?', (req, res) => {
     let articleId = req.params.articleId || null;
-    articleId = (articleId) ? objectHash({id: articleId}) : null;
+    articleId = (articleId) ? objectHash({
+        id: articleId
+    }) : null;
     let page = req.params.page || 1;
     let pageSize = req.params.pageSize || 5;
     if (!validator.matches(articleId, /^[a-z\d]{40,40}$/g)) {
@@ -56,8 +58,7 @@ app.post('/addComment', async (req, res) => {
             throw new Error('Body not valid');
         }
 
-        if (config.enableRecaptcha === 'true')
-        {
+        if (config.enableRecaptcha === 'true') {
             let token = body.token || 'none';
             let data = new formData();
             data.append('secret', config.recaptchaSecret);
@@ -71,7 +72,9 @@ app.post('/addComment', async (req, res) => {
         }
 
         let articleId = body.articleId || '';
-        articleId = (articleId) ? objectHash({id: articleId}) : '';
+        articleId = (articleId) ? objectHash({
+            id: articleId
+        }) : '';
         let author = body.author;
         let email = body.email;
         let url = body.url || '';

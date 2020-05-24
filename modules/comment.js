@@ -67,6 +67,7 @@ class comment {
                     email = target.email;
                 } else {
                     data.comments.unshift(comment);
+                    email = `${CONFIG.authorEmail}`.trim()
                 }
 
                 fs.writeFileSync(this.genFilename(articleId), JSON.stringify(data));
